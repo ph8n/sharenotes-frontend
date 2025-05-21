@@ -46,8 +46,7 @@ export function SignupForm({
         setSuccess(data.message || 'Registration successful!');
         setUsername('');
         setPassword('');
-        // Redirect the user to the login page or dashboard
-        // window.location.href = '/login';
+        window.location.href = '/login';
       }
     } catch (err) {
       console.error('Error submitting registration form:', err);
@@ -99,7 +98,7 @@ export function SignupForm({
             </div>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}
-              <a href="/login" className="underline underline-offset-4"> {/* Adjust the href as needed */}
+              <a href="/login" className="underline underline-offset-4">
                 Login
               </a>
             </div>

@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 export function LoginForm({
   className,
@@ -21,11 +22,14 @@ export function LoginForm({
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null); // Add success state
+  const router = useRouter(); // Initialize useRouter
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -38,12 +42,23 @@ export function LoginForm({
 
       const data = await response.json();
 
-      if (!response.ok) {
-        setError(data.error || 'Login failed');
-      } else {
+      if (response.ok) {
         console.log('Login successful:', data);
-        // Redirect the user to the dashboard or another protected page
-        // window.location.href = '/dashboard';
+        setSuccess('Login successful!');
+
+        if (data && data.token) {
+          localStorage.setItem('authToken', data.token);
+          console.log('Auth token received and stored.');
+
+          router.push('/');
+        } else {
+          console.warn('Login successful, but no token received.');
+          setError('Login successful, but failed to receive authentication token.');
+        }
+
+      } else {
+        console.error('Login failed:', data);
+        setError(data.error || 'Login failed');
       }
     } catch (err) {
       console.error('Error submitting login form:', err);
@@ -59,8 +74,8 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your username below to login to your account
-          </CardDescription>
+            Enter your username and password below to login to your account
+          </CardDescription> {/* Updated description */}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -94,6 +109,7 @@ export function LoginForm({
                 />
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
+              {success && <p className="text-green-500 text-sm">{success}</p>}
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Logging in...' : 'Login'}
               </Button>
@@ -110,4 +126,3 @@ export function LoginForm({
     </div>
   );
 }
-
