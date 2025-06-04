@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie'; // Import js-cookie
 
 export function LoginForm({
   className,
@@ -47,8 +48,9 @@ export function LoginForm({
         setSuccess('Login successful!');
 
         if (data && data.token) {
-          localStorage.setItem('authToken', data.token);
-          console.log('Auth token received and stored.');
+          // Store the token in a cookie instead of localStorage
+          Cookies.set('token', data.token, { expires: 7, secure: process.env.NODE_ENV === 'production' }); // Set cookie for 7 days, secure in production
+          console.log('Auth token received and stored as cookie.');
 
           router.push('/');
         } else {
